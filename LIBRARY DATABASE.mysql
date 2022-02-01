@@ -192,3 +192,5 @@ select * from book where Pub_Year = '2012';
 5. Create a view of all books and its number of copies that are currently available in
 the Library.
 
+create view books as select c.book_id,title,author_name,publisher_name,pub_year, sum(No_of_copies) from book b,book_authors a,book_copies c where c.book_id=a.book_id and a.book_id=b.book_id group by book_id;
+select * from books;
