@@ -1,3 +1,19 @@
+PUBLISHER
+Name Address
+BOOK
+Book_id Title
+Phone
+Publisher_Name Pub_Year
+BOOK_AUTHORS
+Book_id Author_Name
+LIBRARY_PROGRAMME
+Programme_id Programme_Name
+Address
+BOOK_COPIES
+Book_id Programme_id No_of_Copies
+BOOK_LENDING
+Book_id Programme_id Card_No Date_Out Due_Date
+
 TABLE CREATION:
 
 CREATE TABLE Publisher (
