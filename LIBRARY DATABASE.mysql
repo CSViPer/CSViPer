@@ -30,7 +30,7 @@ NULL );
 CREATE TABLE Book_Authors (
 Book_id int NOT NULL,
 Author_Name varchar(200) NOT NULL,
-PRIMARY KEY (Book_id, Author name),
+PRIMARY KEY (Book_id, Author_name),
 FOREIGN KEY (Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE );
 CREATE TABLE Library_Branch (
 Branch_id int PRIMARY KEY,
@@ -44,6 +44,19 @@ PRIMARY KEY (Book_id, Branch_id),
 FOREIGN KEY (Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
 FOREIGN KEY (Branch_id) REFERENCES Library_Branch(Branch_id) ON DELETE
 CASCADE);
+CREATE TABLE Borrower (
+Card_no int PRIMARY KEY,
+Name varchar(200) NOT NULL);
+CREATE TABLE Book_Lending (
+Book_id int NOT NULL,
+Branch_id int NOT NULL,
+Card_no int NOT NULL,
+Date_out Date,
+Due_date Date,
+PRIMARY KEY (Book_id, Branch_id, Card_no),
+FOREIGN KEY (Book_id) REFERENCES Book(Book_id) ON DELETE CASCADE,
+FOREIGN KEY (Branch_id) REFERENCES Library_Branch(Branch_id) ON DELETE CASCADE,
+FOREIGN KEY (Card_no) REFERENCES Borrower(Card_no) ON DELETE CASCADE);
 VALUE INSERTION:
 Publisher Table:
 INSERT INTO `Publisher` (`Name`, `Address`, `Phone`) VALUES ('Pearson', 'New Delhi', '89767895');
@@ -119,35 +132,32 @@ QUERY:
 1. Retrieve details of all books in the library – id, title, name of publisher, authors,
 number of copies in each branch, etc.
 
-select branch_name,c.Book_id,title,publisher_name,author_name, No_of_copies FROM
-Book_Copies c, Book b, Book_Authors a,Library_Branch l where b.Book_id=c.Book_id and
-a.Book_id=b.Book_id and l.branch_id=c.Branch_id order by c.Branch_id,c.Book_id;
-
-Output:
+    -> select branch_name,c.Book_id,Title,Publisher_Name,Author_Name,No_of_copies 
+    -> from Book_Copies c,Book b,Book_Authors a,Library_Branch l 
+    -> where b.Book_id=c.Book_id and a.Book_id=b.Book_id and l.Branch_id=c.Branch_id order by c.Book_id,c.Branch_id;
 +-------------+---------+------------------------------------+------------------------+------------------+--------------+
-| branch_name | Book_id | title                              | publisher_name         | author_name      | No_of_copies |
+| branch_name | Book_id | Title                              | Publisher_Name         | Author_Name      | No_of_copies |
 +-------------+---------+------------------------------------+------------------------+------------------+--------------+
 | BranchA     |       1 | Web Engineering                    | Tata McGraw-Hill       | Roger S Pressman |            2 |
-| BranchA     |       5 | Fundamentals of DS in C            | Universities Press     | Horowitz         |            7 |
-| BranchA     |      10 | OS                                 | Technical Publications | I A Dhotre       |            4 |
-| BranchB     |       2 | Unix System Programming            | Technical Publications | I A Dhotre       |           10 |
-| BranchB     |       6 | Introduction to Automata Theory    | Pearson                | Hopcroft         |           10 |
-| BranchB     |       9 | OOAD                               | Universities Press     | Brahma Dathan    |            6 |
-| BranchC     |       3 | Design of UNIX OS                  | PHI                    | Maurice J Bach   |            5 |
-| BranchC     |       8 | OOAD                               | Tata McGraw-Hill       | Simon Bennett    |           15 |
-| BranchC     |      10 | OS                                 | Technical Publications | I A Dhotre       |            2 |
 | BranchD     |       1 | Web Engineering                    | Tata McGraw-Hill       | Roger S Pressman |            3 |
-| BranchD     |       7 | Operating Systems                  | Pearson                | Deitel           |           12 |
+| BranchB     |       2 | Unix System Programming            | Technical Publications | I A Dhotre       |           10 |
+| BranchC     |       3 | Design of UNIX OS                  | PHI                    | Maurice J Bach   |            5 |
 | BranchE     |       4 | Formal Languages & Automata Theory | Technical Publications | A A Puntambekar  |            6 |
+| BranchA     |       5 | Fundamentals of DS in C            | Universities Press     | Horowitz         |            7 |
+| BranchB     |       6 | Introduction to Automata Theory    | Pearson                | Hopcroft         |           10 |
 | BranchE     |       6 | Introduction to Automata Theory    | Pearson                | Hopcroft         |            8 |
+| BranchD     |       7 | Operating Systems                  | Pearson                | Deitel           |           12 |
+| BranchC     |       8 | OOAD                               | Tata McGraw-Hill       | Simon Bennett    |           15 |
+| BranchB     |       9 | OOAD                               | Universities Press     | Brahma Dathan    |            6 |
+| BranchA     |      10 | OS                                 | Technical Publications | I A Dhotre       |            4 |
+| BranchC     |      10 | OS                                 | Technical Publications | I A Dhotre       |            2 |
 +-------------+---------+------------------------------------+------------------------+------------------+--------------+
 
 2. Get the particulars of borrowers who have borrowed more than 3 books, but from
 Jan 2017 to Jun 2017.
-
-SELECT b.Card_no,b.name FROM Book_Lending l, Borrower b where b.Card_no=l.Card_no and date_out between '2017-01-01' and '2017-07-01' 
-group by l.Card_no having count(*)>3;
-
+    -> select b.Card_no,b.name
+    -> from Book_Lending l,Borrower b
+    -> where b.Card_no=l.Card_no and Date_out between '2017-01-01' and '2017-07-01' group by l.Card_no having count(*)>3;
 +---------+----------+
 | Card_no | name     |
 +---------+----------+
@@ -157,9 +167,9 @@ group by l.Card_no having count(*)>3;
 3. Delete a book in BOOK table. Update the contents of other tables to reflect this
 data manipulation operation.
 
-delete from Book where Book_id=11;
-select * from Book;
-
+    -> DELETE from Book
+    -> where Book_id=11;
+    -> select * from Book;
 +---------+------------------------------------+------------------------+----------+
 | Book_id | Title                              | Publisher_Name         | Pub_Year |
 +---------+------------------------------------+------------------------+----------+
@@ -178,7 +188,7 @@ select * from Book;
 4. Partition the BOOK table based on year of publication. Demonstrate its working
 with a simple query.
 
-select * from book where Pub_Year = '2012';
+select * from Book where Pub_Year = '2012';
 
 +---------+------------------------------------+------------------------+----------+
 | Book_id | Title                              | Publisher_Name         | Pub_Year |
@@ -192,5 +202,9 @@ select * from book where Pub_Year = '2012';
 5. Create a view of all books and its number of copies that are currently available in
 the Library.
 
-create view books as select c.book_id,title,author_name,publisher_name,pub_year, sum(No_of_copies) from book b,book_authors a,book_copies c where c.book_id=a.book_id and a.book_id=b.book_id group by book_id;
-select * from books;
+    -> create view Books as
+    -> select c.Book_id,Title,Author_Name,Publisher_Name,Pub_Year,sum(No_of_copies)
+    -> from Book b,Book_Authors a,Book_Copies c
+    -> where c.Book_id=a.Book_id and a.Book_id=b.Book_id
+    -> group by Book_id;
+     select * from Books;
